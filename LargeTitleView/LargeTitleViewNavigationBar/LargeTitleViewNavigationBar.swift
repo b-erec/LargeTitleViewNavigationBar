@@ -10,8 +10,8 @@ import UIKit
 
 /// Along with `UINavigationItem+LargeTitleView` allows to present
 /// custom title view in the way the navigation bar's large title's presented.
-class LargeTitleViewNavigationBar: UINavigationBar {
-
+final public class LargeTitleViewNavigationBar: UINavigationBar {
+    
     // MARK: - Nested Types
     
     private struct AssociatedKeys {
@@ -64,8 +64,6 @@ class LargeTitleViewNavigationBar: UINavigationBar {
         }
     }
     
-    private var _stickViewToLargeTitleViewTimestamp: Date?
-
     // MARK: - Life Cycle
     
     public override func layoutSubviews() {
@@ -79,16 +77,12 @@ class LargeTitleViewNavigationBar: UINavigationBar {
     private func updateTitleView() {
         guard let topItem = self.topItem else { return }
         
-        var delayAppearance = false
-
         // Reset `currentTitleView` on top navigation item's change.
         self.currentTopItem.map {
             if $0 == topItem { return }
             
             self.observeTopItemTitleView($0, observe: false)
             self.currentTitleView = nil
-            
-            delayAppearance = true
         }
 
         topItem.largeTitleView.map {
@@ -107,8 +101,7 @@ class LargeTitleViewNavigationBar: UINavigationBar {
         //print("bar's height: \(self.bounds.height)")
         let hideLargeTitleView = self.bounds.height <= self.largeTitleChangeThreshold
 
-        self.stickViewToLargeTitleView(hideLargeTitleView ? nil : largeTitleView,
-                                       after: (delayAppearance ? 0.2 : nil))
+        self.stickViewToLargeTitleView(hideLargeTitleView ? nil : largeTitleView)
         
         if (hideLargeTitleView) {
             topItem.titleView = topItem.standardTitleView ?? largeTitleView
@@ -121,36 +114,11 @@ class LargeTitleViewNavigationBar: UINavigationBar {
         self.observeTopItemTitleView(topItem, observe: true)
     }
     
-    private func stickViewToLargeTitleView(_ titleView: UIView?, after delay: TimeInterval? = nil) {
-        guard self._stickViewToLargeTitleViewTimestamp == nil else {
-            return
-        }
-        
-        let doThings = {
-            for view in self.subviews {
-                if view.className.contains("LargeTitleView") {
-                    self.updateSubviews(view.subviews, with: titleView)
-                }
+    private func stickViewToLargeTitleView(_ titleView: UIView?) {
+        for view in self.subviews {
+            if view.className.contains("LargeTitleView") {
+                self.updateSubviews(view.subviews, with: titleView)
             }
-        }
-        
-        guard let delay = delay else {
-            doThings()
-            
-            return
-        }
-        
-        let timestamp = Date()
-        self._stickViewToLargeTitleViewTimestamp = timestamp
-        DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in
-            guard let self = self else { return }
-            guard timestamp == self._stickViewToLargeTitleViewTimestamp else {
-                return
-            }
-            
-            self._stickViewToLargeTitleViewTimestamp = nil
-
-            doThings()
         }
     }
     
@@ -164,7 +132,6 @@ class LargeTitleViewNavigationBar: UINavigationBar {
                     }
 
                     titleView.tag = self.titleViewTag
-
                     titleView.translatesAutoresizingMaskIntoConstraints = false
                     titleView.include(into: label, top: 0, left: 0, bottom: 0)
                     titleView.widthAnchor
