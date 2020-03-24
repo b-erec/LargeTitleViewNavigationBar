@@ -98,7 +98,6 @@ final public class LargeTitleViewNavigationBar: UINavigationBar {
             return
         }
         
-        //print("bar's height: \(self.bounds.height)")
         let hideLargeTitleView = self.bounds.height <= self.largeTitleChangeThreshold
 
         self.stickViewToLargeTitleView(hideLargeTitleView ? nil : largeTitleView)
@@ -118,6 +117,8 @@ final public class LargeTitleViewNavigationBar: UINavigationBar {
         for view in self.subviews {
             if view.className.contains("LargeTitleView") {
                 self.updateSubviews(view.subviews, with: titleView)
+                
+                break
             }
         }
     }
