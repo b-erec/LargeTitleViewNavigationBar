@@ -128,7 +128,7 @@ final public class LargeTitleViewNavigationBar: UINavigationBar {
         for view in subviews {
             if let label = view as? UILabel {
                 if let titleView = titleView {
-                    if label.contains(titleView) {
+                    if label.viewWithTag(self.titleViewTag) != nil {
                         return true
                     }
 
@@ -144,14 +144,11 @@ final public class LargeTitleViewNavigationBar: UINavigationBar {
                  
                     return true
                 }
-                else {
-                    for view in label.subviews {
-                        if view.tag == self.titleViewTag {
-                            view.removeFromSuperview()
-                            
-                            return true
-                        }
-                    }
+                    
+                if let view = label.viewWithTag(self.titleViewTag) {
+                        view.removeFromSuperview()
+                        
+                        return true
                 }
             }
                 
